@@ -11,7 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "agent:start": "tsx agents/orchestrator.ts",
-    "agent:watch": "tsx watch agents/orchestrator.ts"
+    "agent:watch": "tsx watch agents/orchestrator.ts",
+    "local:start": "./start.sh",
+    "local:stop": "./stop.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.27.0",

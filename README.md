@@ -13,7 +13,30 @@ An autonomous AI agent dashboard for life management. Built with Next.js 14, Rea
 
 ## Quick Start
 
-### Development
+### One-Command Local Start (Recommended)
+```bash
+# Clone and start everything in one command
+git clone https://github.com/maheshmasanam123/ASI-LIFE-AGENT.git
+cd ASI-LIFE-AGENT
+npm install
+npm run local:start
+```
+
+This single command will:
+1. Stop any existing Next.js (port 3000) and WebSocket (port 3001) processes
+2. Start the WebSocket/agent server on port 3001
+3. Start the Next.js dashboard on port 3000
+4. Wait for both servers to be ready
+5. Open your browser automatically to http://localhost:3000
+5. Write logs to `logs/next.log` (Next.js) and `logs/agent.log` (Agent)
+
+### One-Command Stop
+```bash
+npm run local:stop
+```
+This stops both Next.js and WebSocket servers.
+
+### Development (Manual)
 ```bash
 # Install dependencies
 npm install
