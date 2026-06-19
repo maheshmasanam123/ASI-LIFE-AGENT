@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
 
 jobs:
   typecheck:
@@ -89,8 +89,32 @@ jobs:
 
       - name: Start WebSocket server
         run: |
-          npm run agent:start &
-          sleep 3
+          npx tsx agents/websocket-server.ts > /tmp/ws.log 2>&1 &
+          echo $! > /tmp/ws.pid
+          sleep 5
+
+      - name: Start Next.js server
+        run: |
+          npm run dev > /tmp/next.log 2>&1 &
+          echo $! > /tmp/next.pid
+          sleep 15
+
+      - name: Wait for services
+        run: |
+          for i in {1..30}; do
+            if curl -sf http://localhost:3001/health >/dev/null 2>&1; then
+              echo "WebSocket server ready"
+              break
+            fi
+            sleep 1
+          done
+          for i in {1..30}; do
+            if curl -sf http://localhost:3000/api/health >/dev/null 2>&1; then
+              echo "Next.js server ready"
+              break
+            fi
+            sleep 1
+          done
 
       - name: Run smoke test
         run: |
@@ -99,6 +123,12 @@ jobs:
           curl -X POST http://localhost:3000/api/tools/execute \
             -H "Content-Type: application/json" \
             -d '{"tool":"file","input":{"operation":"read","path":"/etc/hostname"}}' | grep -q "success" || exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          kill $(cat /tmp/ws.pid 2>/dev/null) 2>/dev/null || true
+          kill $(cat /tmp/next.pid 2>/dev/null) 2>/dev/null || true
 
   test:
     name: Unit Tests

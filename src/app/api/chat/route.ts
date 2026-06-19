@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUUID } from '@asi-types/index';
+import { orchestrator } from '../../../../agents/orchestrator';
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, history } = await request.json();
+    const { message, history, taskId } = await request.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 });
+    }
+
+    // If taskId provided, update task status to running
+    if (taskId) {
+      // Task status update would be handled by the orchestrator
     }
 
     const encoder = new TextEncoder();

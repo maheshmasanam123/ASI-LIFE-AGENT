@@ -4,13 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Loader2, Copy, Check, MessageSquare, Mic, Paperclip, MoreVertical, Smile } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '@/app/providers';
-import { AgentMessage, UUID, createUUID } from '@asi-types/index';
+import { AgentMessage, UUID, createUUID, AgentTask } from '@asi-types/index';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 
 export function ChatWidget() {
-  const { messages, addMessage, agents } = useApp();
+  const { messages, addMessage, addTask, updateTask, agents } = useApp();
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,10 +45,22 @@ export function ChatWidget() {
     setIsStreaming(true);
 
     try {
+      // Create a task for the user's prompt
+      const task = await addTask({
+        title: userInput.slice(0, 50) + (userInput.length > 50 ? '...' : ''),
+        description: userInput,
+        status: 'pending',
+        priority: 'medium',
+        capabilities: ['analysis', 'planning'],
+        input: { prompt: userInput },
+        approvalRequired: false,
+        metadata: { source: 'chat' },
+      });
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userInput, history: messages.slice(-10) }),
+        body: JSON.stringify({ message: userInput, history: messages.slice(-10), taskId: task.id }),
       });
 
       if (!response.ok) throw new Error('Failed to get response');
@@ -66,7 +78,7 @@ export function ChatWidget() {
         role: 'assistant',
         content: '',
         type: 'text',
-        metadata: { streaming: true },
+        metadata: { streaming: true, taskId: task.id },
       };
 
       addMessage(assistantMessage);
@@ -90,6 +102,9 @@ export function ChatWidget() {
         metadata: { ...assistantMessage.metadata, streaming: false },
         updatedAt: new Date(),
       });
+      
+      // Mark task as completed
+      updateTask({ ...task, status: 'completed', progress: 100, output: { response: fullResponse } });
     } catch (error) {
       addMessage({
         id: createUUID(),

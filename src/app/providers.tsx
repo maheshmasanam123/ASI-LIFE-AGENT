@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { AgentState, AgentTask, ApprovalRequest, AgentMessage, SystemMetrics, UUID, WidgetType, DashboardWidget } from '@asi-types/index';
+import { AgentState, AgentTask, ApprovalRequest, AgentMessage, SystemMetrics, UUID, WidgetType, DashboardWidget, createUUID } from '@asi-types/index';
 
 interface AppContextType {
   agents: AgentState[];
@@ -14,8 +14,8 @@ interface AppContextType {
   socket: Socket | null;
   connected: boolean;
   addMessage: (message: AgentMessage) => void;
-  addTask: (task: AgentTask) => AgentTask;
-  updateTask: (task: AgentTask) => void;
+  addTask: (task: Partial<AgentTask>) => AgentTask;
+  updateTask: (task: Partial<AgentTask>) => void;
   addApproval: (approval: ApprovalRequest) => void;
   updateApproval: (approval: ApprovalRequest) => void;
   setAgents: (agents: AgentState[]) => void;
@@ -38,6 +38,17 @@ export function Providers({ children }: { children: ReactNode }) {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
+    const handleStartLifeAgent = () => {
+      socket?.emit('agent.command', { agentId: 'life-ai', command: 'start', args: {} });
+    };
+
+    const handleRunSystemTest = () => {
+      socket?.emit('agent.command', { agentId: 'life-ai', command: 'test', args: {} });
+    };
+
+    window.addEventListener('start-life-ai-agent', handleStartLifeAgent);
+    window.addEventListener('run-system-test', handleRunSystemTest);
+
     const newSocket = io(process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001', {
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -87,6 +98,8 @@ export function Providers({ children }: { children: ReactNode }) {
     setSocket(newSocket);
 
     return () => {
+      window.removeEventListener('start-life-ai-agent', handleStartLifeAgent);
+      window.removeEventListener('run-system-test', handleRunSystemTest);
       newSocket.disconnect();
     };
   }, []);
@@ -96,14 +109,23 @@ export function Providers({ children }: { children: ReactNode }) {
     socket?.emit('message', message);
   };
 
-  const addTask = (task: AgentTask): AgentTask => {
-    setTasks(prev => [...prev, task]);
-    socket?.emit('task.create', task);
-    return task;
+  const addTask = (task: Partial<AgentTask>): AgentTask => {
+    const newTask: AgentTask = {
+      ...task,
+      id: task.id || createUUID(),
+      createdAt: task.createdAt || new Date(),
+      updatedAt: new Date(),
+      subtasks: task.subtasks || [],
+      progress: task.progress || 0,
+      metadata: task.metadata || {},
+    } as AgentTask;
+    setTasks(prev => [...prev, newTask]);
+    socket?.emit('task.create', newTask);
+    return newTask;
   };
 
-  const updateTask = (task: AgentTask) => {
-    setTasks(prev => prev.map(t => t.id === task.id ? task : t));
+  const updateTask = (task: Partial<AgentTask>) => {
+    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...task, updatedAt: new Date() } : t));
     socket?.emit('task.update', task);
   };
 

@@ -62,6 +62,37 @@ export class AgentOrchestrator extends EventEmitter {
     if (this.config.autoStart) {
       await this.start();
     }
+    
+    // Create default Life AI agent if none exists
+    if (this.agents.size === 0) {
+      await this.createDefaultLifeAgent();
+    }
+  }
+  
+  private async createDefaultLifeAgent(): Promise<void> {
+    const lifeAgentConfig = createAgentConfig({
+      name: 'Life AI',
+      description: 'Autonomous life management agent with full system access',
+      capabilities: [
+        { name: 'file', description: 'File system operations', category: 'file', inputSchema: { type: 'object', properties: {} }, outputSchema: { type: 'object', properties: {} }, requiresApproval: false, reversibility: 'reversible', tags: ['file'] },
+        { name: 'code', description: 'Code execution and analysis', category: 'code', inputSchema: { type: 'object', properties: {} }, outputSchema: { type: 'object', properties: {} }, requiresApproval: false, reversibility: 'reversible', tags: ['code'] },
+        { name: 'web', description: 'Web browsing and search', category: 'web', inputSchema: { type: 'object', properties: {} }, outputSchema: { type: 'object', properties: {} }, requiresApproval: false, reversibility: 'reversible', tags: ['web'] },
+        { name: 'terminal', description: 'Terminal/shell access', category: 'system', inputSchema: { type: 'object', properties: {} }, outputSchema: { type: 'object', properties: {} }, requiresApproval: true, reversibility: 'semi_reversible', tags: ['terminal'] },
+        { name: 'system', description: 'System monitoring', category: 'system', inputSchema: { type: 'object', properties: {} }, outputSchema: { type: 'object', properties: {} }, requiresApproval: false, reversibility: 'reversible', tags: ['system'] },
+        { name: 'web', description: 'Web access', category: 'web', inputSchema: { type: 'object', properties: {} }, outputSchema: { type: 'object', properties: {} }, requiresApproval: false, reversibility: 'reversible', tags: ['web'] },
+      ],
+      behavior: {
+        autonomous: true,
+        proactive: true,
+        verbosity: 'verbose',
+        reasoning: 'deep',
+        creativity: 0.8,
+        riskTolerance: 'conservative',
+      },
+    });
+    
+    const lifeAgent = await this.createAgent(lifeAgentConfig);
+    console.log(`[Life AI] Default agent created: ${lifeAgent.getConfig().name} (${lifeAgent.getConfig().id})`);
   }
 
   private async loadGlobalTools(): Promise<void> {

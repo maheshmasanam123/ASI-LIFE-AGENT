@@ -20,9 +20,23 @@ export function AgentStatusWidget() {
   if (agents.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center p-8">
-        <Bot className="w-16 h-16 text-asi-textMuted/30 mb-4" />
-        <p className="text-asi-textMuted">No agents running</p>
-        <p className="text-xs text-asi-textMuted/50 mt-1">Start an agent from the orchestrator</p>
+        <div className="w-20 h-20 rounded-2xl bg-asi-bgTeritary flex items-center justify-center mb-6 border border-asi-border/50">
+          <Bot className="w-10 h-10 text-asi-textMuted/30" />
+        </div>
+        <h3 className="text-lg font-display font-semibold text-asi-text mb-2">No agents running</h3>
+        <p className="text-asi-textMuted mb-6">Start the Life AI agent to begin autonomous task execution</p>
+        <button 
+          onClick={() => {
+            const event = new CustomEvent('start-life-ai-agent');
+            window.dispatchEvent(event);
+          }}
+          className="btn-primary px-6 py-3 text-lg flex items-center gap-2 mx-auto"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Start Life AI Agent
+        </button>
       </div>
     );
   }
