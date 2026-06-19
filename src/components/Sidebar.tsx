@@ -25,10 +25,30 @@ const navigation = [
 ];
 
 const tools = [
-  { title: 'System', icon: Cpu, items: ['Metrics', 'Processes', 'Services', 'Logs'] },
-  { title: 'Network', icon: Network, items: ['Connections', 'Bandwidth', 'DNS', 'Firewall'] },
-  { title: 'Storage', icon: HardDrive, items: ['Disks', 'Files', 'Backups', 'Cleanup'] },
-  { title: 'Automation', icon: Zap, items: ['Workflows', 'Schedules', 'Triggers', 'Macros'] },
+  { title: 'System', icon: Cpu, items: [
+    { label: 'Metrics', href: '/tools/system/metrics' },
+    { label: 'Processes', href: '/terminal' },
+    { label: 'Services', href: '/terminal' },
+    { label: 'Logs', href: '/terminal' },
+  ]},
+  { title: 'Network', icon: Network, items: [
+    { label: 'Connections', href: '/terminal' },
+    { label: 'Bandwidth', href: '/terminal' },
+    { label: 'DNS', href: '/terminal' },
+    { label: 'Firewall', href: '/terminal' },
+  ]},
+  { title: 'Storage', icon: HardDrive, items: [
+    { label: 'Disks', href: '/files' },
+    { label: 'Files', href: '/files' },
+    { label: 'Backups', href: '/files' },
+    { label: 'Cleanup', href: '/files' },
+  ]},
+  { title: 'Automation', icon: Zap, items: [
+    { label: 'Workflows', href: '/tasks' },
+    { label: 'Schedules', href: '/tasks' },
+    { label: 'Triggers', href: '/tasks' },
+    { label: 'Macros', href: '/tasks' },
+  ]},
 ];
 
 export function Sidebar() {
@@ -158,16 +178,16 @@ export function Sidebar() {
                                 exit={{ opacity: 0, height: 0 }}
                                 className="ml-8 mt-1 space-y-1 border-l border-asi-border/30 pl-2"
                               >
-                                {tool.items.map((item) => (
-                                  <Link
-                                    key={item}
-                                    href={`/tools/${tool.title.toLowerCase()}/${item.toLowerCase()}`}
-                                    className="block px-3 py-1.5 text-sm text-asi-textMuted hover:text-asi-primary rounded-lg hover:bg-asi-bgTeritary/30 transition-colors"
-                                    onClick={() => setMobileOpen(false)}
-                                  >
-                                    {item}
-                                  </Link>
-                                ))}
+                                 {tool.items.map((item) => (
+                                   <Link
+                                     key={item.label}
+                                     href={item.href}
+                                     className="block px-3 py-1.5 text-sm text-asi-textMuted hover:text-asi-primary rounded-lg hover:bg-asi-bgTeritary/30 transition-colors"
+                                     onClick={() => setMobileOpen(false)}
+                                   >
+                                     {item.label}
+                                   </Link>
+                                 ))}
                               </motion.div>
                             )}
                           </AnimatePresence>
