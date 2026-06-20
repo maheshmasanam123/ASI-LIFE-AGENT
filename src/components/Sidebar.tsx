@@ -15,6 +15,7 @@ import { usePathname } from 'next/navigation';
 
 const navigation = [
   { title: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { title: 'Control Center', href: '/control-center', icon: ShieldCheck },
   { title: 'Agents', href: '/agents', icon: Bot },
   { title: 'Tasks', href: '/tasks', icon: ClipboardList },
   { title: 'Terminal', href: '/terminal', icon: Terminal },

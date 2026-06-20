@@ -93,8 +93,8 @@ export class ToolRegistry {
     return tool.execute(input, context);
   }
 
-  public getManifest(): any {
-    const manifest: any = {};
+  public getManifest(): Record<string, { name: string; description: string; category: string; schema: any; requiresApproval: boolean; reversibility: string }> {
+    const manifest: Record<string, { name: string; description: string; category: string; schema: any; requiresApproval: boolean; reversibility: string }> = {};
     for (const [name, tool] of this.tools) {
       manifest[name] = {
         name: tool.name,

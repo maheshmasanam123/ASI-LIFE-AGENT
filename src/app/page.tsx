@@ -3,10 +3,51 @@
 import { DashboardGrid } from '@/components/DashboardGrid';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
-import { useApp } from './providers';
+import { useApp } from '@/app/providers';
+import { useEffect, useState } from 'react';
+import { Brain, AlertCircle, ExternalLink, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { connected } = useApp();
+  const [hasProvider, setHasProvider] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/control-center')
+      .then(r => r.json())
+      .then(data => {
+        setHasProvider(Object.keys(data.providers || {}).some(id => data.providers[id]?.apiKey && !data.providers[id]?.apiKey.startsWith('•••')));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-asi-bg grid-pattern radial-glow flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-asi-primary" />
+      </div>
+    );
+  }
+
+  if (!hasProvider) {
+    return (
+      <div className="min-h-screen bg-asi-bg grid-pattern radial-glow flex items-center justify-center p-8">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-asi-primary/20 flex items-center justify-center">
+            <Brain className="w-10 h-10 text-asi-primary" />
+          </div>
+          <h1 className="text-3xl font-display font-bold text-asi-text mb-4">Welcome to ASI Life Agent</h1>
+          <p className="text-asi-textMuted mb-8">No AI provider configured. Please add an API key to start using the agent.</p>
+          <Link href="/control-center" className="btn-primary inline-flex items-center gap-2 w-full justify-center py-3">
+            <ExternalLink className="w-4 h-4" />
+            Configure Provider
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-asi-bg grid-pattern radial-glow">

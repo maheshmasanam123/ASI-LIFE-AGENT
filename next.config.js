@@ -37,6 +37,16 @@ const nextConfig = {
       { 'systeminformation': 'commonjs systeminformation' },
       { 'cheerio': 'commonjs cheerio' },
     ];
+    // Add path aliases for server-side resolution
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@/*': './src/*',
+      '@agents/*': './agents/*',
+      '@tools/*': './tools/*',
+      '@core/*': './core/*',
+      '@ui/*': './ui/*',
+      '@asi-types/*': './types/*',
+    };
     return config;
   },
   async headers() {

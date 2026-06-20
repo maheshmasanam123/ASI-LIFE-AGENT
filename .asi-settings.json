@@ -1,0 +1,16 @@
+{
+  "providers": {},
+  "activeProvider": "openai",
+  "activeModel": "gpt-4o",
+  "toolPermissions": {},
+  "autonomyMode": "safe",
+  "approvalRules": [
+    "irreversible",
+    "destructive",
+    "secrets",
+    "money",
+    "medical",
+    "legal",
+    "privacy"
+  ]
+}
